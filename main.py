@@ -1,3 +1,36 @@
+class Battleship(object):
+    '''
+    @staticmethod refers to a method called on the class itself, i.e.:
+    
+    b = Battleship.build((1,2), 5, "S")
+    
+    a "non-static method" refers to a method called on an instance of a class, i.e.:
+
+    b.build, 
+    
+    hich doesn't make sense, because b is an instance of the class "Battleship"
+    '''
+    @staticmethod
+    def build(head, length, direction):
+
+        body = []
+
+        for i in range(length):
+            if direction == "N":
+                el = (head[0], head[1] - i)
+            elif direction == "S":
+                el = (head[0], head[1] + i)
+            elif direction == "E":
+                el = (head[0] + i, head[1])
+            elif direction == "W":
+                el = (head[0] - i, head[1])
+            body.append(el)
+
+        return Battleship(body)
+
+    def __init__(self, body):
+        self.body = body
+
 def render(board_width: int, board_height: int, shots: list):
     header = "+" + "-" * board_width + "+"
     print(header)
@@ -16,8 +49,48 @@ def render(board_width: int, board_height: int, shots: list):
 
     print(header)
 
+def render_battleships(board_width, board_height, battleships):
+    header = "+" + "-" * board_width + "+"
+    
+    print(header)
+    
+    board = []
+
+    #create a grid of board_height by board_width with the value "None" for each
+
+    for _ in range(board_width):
+        board.append([None for _ in range(board_height)])
+
+    #replace the value "None" with "O" wherever there are battleships
+
+    for b in battleships:
+        for x,y in b.body:
+            board[x][y] = "O"
+
+    #replace the "None" values with " ", join all of the elements in each row of the board and print the rows
+
+    for y in range(board_height):
+        row =[]
+        for x in range(board_width):
+            row.append(board[x][y] or " ")
+        print("|" + "".join(row) + "|")
+    
+    print(header)
 
 if __name__ == "__main__":
+    battleships = [
+        Battleship.build((1,1), 2, "N"),
+        Battleship.build((5,8), 5, "N"),
+        Battleship.build((2,3), 4, "E")
+    ]
+
+    for i in battleships:
+        print(i.body)
+
+    render_battleships(10,10, battleships)
+
+    exit()
+
     shots = []   
 
     while True: 
