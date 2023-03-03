@@ -17,10 +17,6 @@ class GameBoard(object):
 
         self.shots.append(Shot(shot_location, is_hit))
 
-
-
-
-
 class Shot(object):
 
     def __init__(self, location, is_hit):
@@ -67,7 +63,33 @@ class Battleship(object):
         except ValueError:
             return None
 
+def render2(game_boad):
+    header = "+" + "-" * board_width + "+"
+    print(header)
+    
+    board = []
 
+    #create a grid of board_height by board_width with the value "None" for each
+
+    for _ in range(board_width):
+        board.append([None for _ in range(board_height)])
+
+    #replace the value "None" with "O" wherever there are battleships
+
+    for b in battleships:
+        for x,y in b.body:
+            board[x][y] = "O"
+
+    #replace the "None" values with " ", join all of the elements in each row of the board and print the rows
+
+    for y in range(board_height):
+        row =[]
+        for x in range(board_width):
+            row.append(board[x][y] or " ")
+        print("|" + "".join(row) + "|")
+
+
+    
 def render(board_width: int, board_height: int, shots: list):
     header = "+" + "-" * board_width + "+"
     print(header)
