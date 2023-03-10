@@ -1,10 +1,10 @@
 class GameBoard(object):
 
-    def __init__(self, battleships, board_width, board_height):
+    def __init__(self, battleships, width, height):
         self.battleships = battleships
         self.shots = []
-        self.board_width = board_width
-        self.board_height = board_height
+        self.width = width
+        self.height = height
 
     def take_shot(self, shot_location):
         is_hit = False
@@ -16,6 +16,13 @@ class GameBoard(object):
                 break
 
         self.shots.append(Shot(shot_location, is_hit))
+
+    def is_game_over(self):
+        return all([b.is_destroyed() for b in self.battleships])
+            
+        #for each battleship, is it destroyed?
+
+
 
 class Shot(object):
 
@@ -33,7 +40,7 @@ class Battleship(object):
 
     b.build, 
     
-    hich doesn't make sense, because b is an instance of the class "Battleship"
+    which doesn't make sense, because b is an instance of the class "Battleship"
     '''
     @staticmethod
     def build(head, length, direction):
@@ -62,112 +69,68 @@ class Battleship(object):
             return self.body.index(location)
         except ValueError:
             return None
+        
+    def is_destroyed(self):
+        return all(self.hits)
 
-def render2(game_boad):
-    header = "+" + "-" * board_width + "+"
+def render(game_boad, show_battleships=False):
+    header = "+" + "-" * game_board.width + "+"
+    
     print(header)
     
+
+    #create a grid of height by width with the value "None" for each
     board = []
-
-    #create a grid of board_height by board_width with the value "None" for each
-
-    for _ in range(board_width):
-        board.append([None for _ in range(board_height)])
+    for _ in range(game_board.width):
+        board.append([None for _ in range(game_board.height)])
 
     #replace the value "None" with "O" wherever there are battleships
-
-    for b in battleships:
-        for x,y in b.body:
-            board[x][y] = "O"
+    if show_battleships:
+        for b in game_board.battleships:
+            for x,y in b.body:
+                board[x][y] = "O"
+    
+    #rplace the value "None" or "O" with "X" whenever there is a shot
+    for sh in game_board.shots:
+        x, y = sh.location
+        if sh.is_hit:
+            ch = "X"
+        else:
+            ch = "."
+        board[x][y] = ch
 
     #replace the "None" values with " ", join all of the elements in each row of the board and print the rows
 
-    for y in range(board_height):
+    for y in range(game_board.height):
         row =[]
-        for x in range(board_width):
+        for x in range(game_board.width):
             row.append(board[x][y] or " ")
         print("|" + "".join(row) + "|")
 
-
-    
-def render(board_width: int, board_height: int, shots: list):
-    header = "+" + "-" * board_width + "+"
-    print(header)
-
-    shots_set = set(shots)
-
-    for y in range(board_height):
-        row = []
-        for x in range(board_width):
-            if (x,y) in shots_set:
-                ch = "X"
-            else:
-                ch = " "
-            row.append(ch)
-        print("|" + "".join(row) + "|")
-
-    print(header)
-
-def render_battleships(board_width, board_height, battleships):
-    header = "+" + "-" * board_width + "+"
-    
-    print(header)
-    
-    board = []
-
-    #create a grid of board_height by board_width with the value "None" for each
-
-    for _ in range(board_width):
-        board.append([None for _ in range(board_height)])
-
-    #replace the value "None" with "O" wherever there are battleships
-
-    for b in battleships:
-        for x,y in b.body:
-            board[x][y] = "O"
-
-    #replace the "None" values with " ", join all of the elements in each row of the board and print the rows
-
-    for y in range(board_height):
-        row =[]
-        for x in range(board_width):
-            row.append(board[x][y] or " ")
-        print("|" + "".join(row) + "|")
-    
     print(header)
 
 if __name__ == "__main__":
     battleships = [
         Battleship.build((1,1), 2, "N"),
-        Battleship.build((5,8), 5, "N"),
-        Battleship.build((2,3), 4, "E")
+        # Battleship.build((5,8), 5, "N"),
+        # Battleship.build((2,3), 4, "E")
     ]
 
-    for i in battleships:
-        print(i.body)
-
     game_board = GameBoard(battleships, 10, 10)
-    shots = [(1,1),(0,0),(5,7)]
-    for sh in shots:
-        game_board.take_shot(sh)
-
-    for sh in game_board.shots:
-        print(sh.location)
-        print(sh.is_hit)
-        print("==========")
-    for b in game_board.battleships:
-        print(b.body)
-        print(b.hits)
-        print("==========")
-
-    exit(0)
-
-    shots = []   
 
     while True: 
         inp = input("Where do you want to shoot?\n")
         xstr, ystr = inp.split(",")
         x = int(xstr)
         y = int(ystr)
-        shots.append((x,y))
-        render(10, 10, shots)
+
+        game_board.take_shot((x,y))
+        render(game_board)
+
+        if game_board.is_game_over():
+            print('You win!')
+            break
+
+        # if game_has_ended:
+        #   print('You win')
+        #   break
