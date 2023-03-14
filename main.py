@@ -1,3 +1,5 @@
+import copy
+
 class GameBoard(object):
 
     def __init__(self, battleships, width, height):
@@ -73,7 +75,7 @@ class Battleship(object):
     def is_destroyed(self):
         return all(self.hits)
 
-def render(game_boad, show_battleships=False):
+def render(game_board, show_battleships=False):
     header = "+" + "-" * game_board.width + "+"
     
     print(header)
@@ -110,26 +112,44 @@ def render(game_boad, show_battleships=False):
     print(header)
 
 if __name__ == "__main__":
+
     battleships = [
         Battleship.build((1,1), 2, "N"),
         # Battleship.build((5,8), 5, "N"),
         # Battleship.build((2,3), 4, "E")
     ]
 
-    game_board = GameBoard(battleships, 10, 10)
+    game_boards = [
+        GameBoard(battleships, 10, 10),
+        GameBoard(copy.deepcopy(battleships), 10, 10)
+    ]
 
+    player_names = [
+        "Frank",
+        "Alice"
+    ]
+
+    offensive_idx = 0
     while True: 
+        # make defensive_idx the opposite of offensive_idx
+        defensive_idx = (offensive_idx + 1) % 2
+
+        defensive_board = game_boards[defensive_idx] 
+
+        print('%s YOUR TURN!' % player_names[offensive_idx])
         inp = input("Where do you want to shoot?\n")
         xstr, ystr = inp.split(",")
         x = int(xstr)
         y = int(ystr)
 
-        game_board.take_shot((x,y))
-        render(game_board)
+        defensive_board.take_shot((x,y))
+        render(defensive_board)
 
-        if game_board.is_game_over():
-            print('You win!')
+        if defensive_board.is_game_over():
+            print('%s WINS!' % player_names[offensive_idx])
             break
+
+        offensive_idx = defensive_idx
 
         # if game_has_ended:
         #   print('You win')
